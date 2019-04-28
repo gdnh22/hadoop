@@ -74,3 +74,7 @@ done
 
 unset i
 unset -f pathmunge
+
+#java
+export JAVA_HOME=/usr/java
+export PATH=$PATH:$JAVA_HOME/bin
