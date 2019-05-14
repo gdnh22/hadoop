@@ -1,0 +1,73 @@
+参考视频05-伪分布式集群搭建
+
+
+
+可选：升级gcc-9.1.0
+[root@itcast ninja59k]# tar -zxvf gcc-9.1.0.tar.gz 
+[root@itcast ninja59k]# cd gcc-9.1.0
+
+[root@itcast gcc-9.1.0]# ./contrib/download_prerequisites 
+./contrib/download_prerequisites: line 58: type: wget: not found
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (6) Could not resolve host: .; Unknown error
+curl: (6) Could not resolve host: gcc.gnu.org; Unknown error
+error: Cannot download gmp-6.1.0.tar.bz2 from ftp://gcc.gnu.org/pub/gcc/infrastructure/
+
+rpm -qa|grep gmp	//检查gmp版本
+
+卸载
+gmp-6.0.0-15.el7.x86_64
+
+打开ftp，下载gmp-6.1.0.tar.bz2
+上传到【/usr/local/ninja59k】
+[root@itcast ninja59k]# tar -jxvf gmp-6.1.0.tar.bz2 
+cd /gpm-6.1.0
+./configure
+yum install m4
+./configure
+make
+make check
+#等待几分钟
+makeinstall
+
+
+安装g++
+
+[root@itcast ninja59k]# yum install gcc-c++
+Error downloading packages:
+  libstdc++-devel-4.8.5-36.el7.x86_64: [Errno 256] No more mirrors to try.
+  gcc-c++-4.8.5-36.el7.x86_64: [Errno 256] No more mirrors to try.
+
+百度搜索 gcc-c++-4.8.5-36.el7.x86_64
+https://pkgs.org/download/gcc-c++
+CentOS 7 -> gcc-c++-4.8.5-36.el7.x86_64.rpm
+Download -> gcc-c++-4.8.5-36.el7.x86_64.rpm
+
+当前页面找 libstdc++-devel
+CentOS 7 -> libstdc++-devel-4.8.5-36.el7.x86_64.rpm
+Download ->
+
+[root@itcast ninja59k]# yum install libstdc++-devel-4.8.5-36.el7.x86_64.rpm 
+
+g++ -v
+
+
+[root@itcast ninja59k]# yum install gcc-c++-4.8.5-36.el7.x86_64.rpm 
+
+参考文章：
+升级gcc8.1
+https://blog.csdn.net/andysdsdsdsddd/article/details/80749174
+
+----   原来的想法是离线安装gcc-9，但发现还是需要gcc。
+安装gcc，百度gcc，https://gcc.gnu.org/
+右边 Download -> Mirrors -> US, San Francisco: https://bigsearcher.com/mirrors/gcc/, thanks to info@bigsearcher.com
+依次展开 releases -> gcc-9.1.0 -> gcc-9.1.0.tar.gz
+保存到【E:\develop\linux\gcc\v9.1.0\gcc-9.1.0】
+
+附：
+http://mirrors.aliyun.com/centos/7/os/x86_64/Packages/
+
+
+
+

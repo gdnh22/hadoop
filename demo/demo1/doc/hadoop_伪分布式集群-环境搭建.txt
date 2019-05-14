@@ -176,36 +176,133 @@ source /etc/profile
 java -version #验证版本
 
 3 安装hadoop2.4.1
-上传【】
+上传【hadoop-2.4.1.tar.gz】
+tar -zxvf hadoop-2.4.1.tar.gz -C /home/hadoop/
+3.1 配置5个XML文件
+王旁青头五夫一，1234567
+一夫五头青旁王，1234567
+cd hadoop-2.4.1/etc/hadoop/
+
+一、hadoop-env.sh
+第27行 
+
+export JAVA_HOME=/home/hadoop/app/jdk1.8.0_211
+夫、core-site.xml
+<!-- 指定hadoop所使用的文件系统schema（URI），HDFS的老大（NameNode）的地址 -->
+<property>
+<name>fs.defaultFS</name>
+<value>hdfs://itcast:9000</value>
+</property>
+<!-- 指定hadoop运行时产生文件的存储目录 -->
+<property>
+<name>hadoop.tmp.dir</name>
+<value>/home/hadoop/hadoop-2.4.1/tmp</value>
+</property>
+
+五、hdfs-size.xml
+<!-- 指定HDFS副本数量 -->
+<property>
+<name>dfs.replication</name>
+<value>1</value>
+</property>
+
+头、mapred-site.xml.template
+mv mapred-site.xml.template mapred-site.xml
+<!-- 指定mr运行在yarn上 -->
+<property>
+<name>mapreduce.framework.name</name>
+<value>yarn</value>
+</property>
+
+青、yarn-site.xml
+<!-- 指定YARN的老大 ResourceManager -->
+<property>
+<name>yarn.resourcemanager.hostname</name>
+<value>itcast</value>
+</property>
+
+<!-- reduce 获取数据的方式 -->
+<property>
+<name>yarn.nodemanager.aux-services</name>
+<value>mapreduce_shuffle</value>
+</property>
+
+配置完成。
+
+3.2 配置hadoop环境变量 
+vim /etc/profile
+
+export JAVA_HOME=/home/hadoop/app/jdk1.8.0_211
+export HADOOP_HOME=/home/hadoop/hadoop-2.4.1
+export PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin
+
+3.3 格式化 namenode
+hadoop namenode -format
+
+成功的话：
+....
+19/05/14 11:42:12 INFO namenode.NameNode: SHUTDOWN_MSG: 
+/************************************************************
+SHUTDOWN_MSG: Shutting down NameNode at itcast/192.168.80.101
+************************************************************/
+
+3.4 启动hadoop
+先启动HDFS
+sbin/start-dfs.sh
+输入三次用户名密码，yes
+
+[root@itcast gmp-6.1.0]# jps
+35139 Jps
+35014 SecondaryNameNode
+34873 DataNode
+34766 NameNode
+
+#重启后要加载CD-ROM
+[root@itcast gmp-6.1.0]# mount -t auto /dev/cdrom /media/Centos7
+mount: /dev/sr0 is write-protected, mounting read-only
+[root@itcast gmp-6.1.0]# mount -o remount,rm /media/Centos7
+[root@itcast gmp-6.1.0]# yum install net-tools
+
+[root@itcast gmp-6.1.0]# netstat -nltp
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    
+tcp        0      0 192.168.80.101:9000     0.0.0.0:*               LISTEN      34766/java          
+tcp        0      0 0.0.0.0:50090           0.0.0.0:*               LISTEN      35014/java          
+tcp        0      0 0.0.0.0:50070           0.0.0.0:*               LISTEN      34766/java          
+tcp        0      0 0.0.0.0:22              0.0.0.0:*               LISTEN      6393/sshd           
+tcp        0      0 127.0.0.1:25            0.0.0.0:*               LISTEN      6480/master         
+tcp        0      0 0.0.0.0:50010           0.0.0.0:*               LISTEN      34873/java          
+tcp        0      0 0.0.0.0:50075           0.0.0.0:*               LISTEN      34873/java          
+tcp        0      0 0.0.0.0:50020           0.0.0.0:*               LISTEN      34873/java          
+tcp6       0      0 :::22                   :::*                    LISTEN      6393/sshd           
+tcp6       0      0 ::1:25                  :::*                    LISTEN      6480/master         
 
 
-可选：升级gcc-9.1.0
-[root@itcast ninja59k]# tar -zxvf gcc-9.1.0.tar.gz 
-[root@itcast ninja59k]# cd gcc-9.1.0
-
-[root@itcast gcc-9.1.0]# ./contrib/download_prerequisites 
-./contrib/download_prerequisites: line 58: type: wget: not found
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (6) Could not resolve host: .; Unknown error
-curl: (6) Could not resolve host: gcc.gnu.org; Unknown error
-error: Cannot download gmp-6.1.0.tar.bz2 from ftp://gcc.gnu.org/pub/gcc/infrastructure/
-
-打开ftp，下载gmp-6.1.0.tar.bz2
-
-参考文章：
-升级gcc8.1
-https://blog.csdn.net/andysdsdsdsddd/article/details/80749174
-
-----   原来的想法是离线安装gcc-9，但发现还是需要gcc。
-安装gcc，百度gcc，https://gcc.gnu.org/
-右边 Download -> Mirrors -> US, San Francisco: https://bigsearcher.com/mirrors/gcc/, thanks to info@bigsearcher.com
-依次展开 releases -> gcc-9.1.0 -> gcc-9.1.0.tar.gz
-保存到【E:\develop\linux\gcc\v9.1.0\gcc-9.1.0】
-
-附：
-http://mirrors.aliyun.com/centos/7/os/x86_64/Packages/
+sbin/start-yarn.sh
 
 
+3.5 验证是否启动成功
+		http://192.168.80.101:50070 （HDFS管理界面）
+		http://192.168.80.101:8088 （MR管理界面）
+
+4 配置SSH免登录
+cd ~/.ssh
+ssh-keygen -t rsa
+ssh-copy-id 192.168.80.101
+
+验证
+ssh 192.168.80.101
+
+5 拷贝一个文件
+hadoop fs -put jdk-8u211-linux-x64.tar.gz hdfs://itcast:9000/
+查看文件
+[root@itcast ninja59k]# hadoop fs -ls hdfs://itcast:9000/
+Java HotSpot(TM) 64-Bit Server VM warning: You have loaded library /home/hadoop/hadoop-2.4.1/lib/native/libhadoop.so.1.0.0 which might have disabled stack guard. The VM will try to fix the stack guard now.
+It's highly recommended that you fix the library with 'execstack -c <libfile>', or link it with '-z noexecstack'.
+19/05/14 12:22:40 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Found 1 items
+-rw-r--r--   1 root supergroup  194990602 2019-05-14 12:22 hdfs://itcast:9000/jdk-8u211-linux-x64.tar.gz
+
+全文完。
 
 
