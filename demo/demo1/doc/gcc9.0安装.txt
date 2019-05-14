@@ -1,5 +1,3 @@
-参考视频05-伪分布式集群搭建
-
 
 
 可选：升级gcc-9.1.0
@@ -14,10 +12,26 @@
 curl: (6) Could not resolve host: gcc.gnu.org; Unknown error
 error: Cannot download gmp-6.1.0.tar.bz2 from ftp://gcc.gnu.org/pub/gcc/infrastructure/
 
+yum install wget
+
+
+修改baseurl? 
+base_url=\usr\local\ninja59k
+
+gmp-6.1.0.tar.bz2
+mpfr-3.1.4.tar.bz2
+mpc-1.0.3.tar.gz
+isl-0.18.tar.bz2
+
+
 rpm -qa|grep gmp	//检查gmp版本
+
 
 卸载
 gmp-6.0.0-15.el7.x86_64
+
+mkdir -p /usr/local/gcc9_depend
+
 
 打开ftp，下载gmp-6.1.0.tar.bz2
 上传到【/usr/local/ninja59k】
@@ -29,8 +43,20 @@ yum install m4
 make
 make check
 #等待几分钟
-makeinstall
+make install
+[root@itcast ninja59k]# tar jxvf mpfr-3.1.4.tar.bz2 
 
+./configure   --prefix=/usr/local/gcc9_depend --with-gmp=/usr/local/gcc9_depend
+
+
+./configure   --prefix=/usr/local/gcc9_depend --with-gmp=/usr/local//usr/local/gcc9_depend --with-mpfr=/usr/local//usr/local/gcc9_depend
+make
+
+
+
+
+
+export LD_LIBRARY_PATH=/usr/local/gmp/lib:$LD_LIBRARY_PATH
 
 安装g++
 
