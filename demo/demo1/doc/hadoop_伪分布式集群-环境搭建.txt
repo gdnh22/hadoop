@@ -1,0 +1,211 @@
+参考视频05-伪分布式集群搭建
+
+1、Linux环境（不联外网，最小化安装）
+1.1 vmnetcfg.exe
+VMnet1 host-only -> subnet ip 
+子网IP：192.168.80.0
+子网掩码：255.255.255.0
+
+返回windows，网络和共享中心，更改适配器设置 ->右键VMnet1 -> 属性 ->双击IPv4 ->
+IP：192.168.80.100
+子网掩码：255.255.255.0
+
+打开虚拟软件，右键虚拟机，settings -> network adapter -> host only
+
+1.1 修改主机名
+vi /etc/sysconfig/network
+NETWORKING=yes
+HOSTNAME=itcast
+
+1.2 修改IP
+ip addr #查看网卡，默认 ens32
+vim /etc/sysconfig/network-scripts/ifcfg-ens32
+BOOTPROTO="static"
+ONBOOT=yes
+IPADDR="192.168.80.101"
+NETMASK="255.255.255.0"
+GATEWAY="192.168.80.1"
+
+
+1.3 修改主机名和IP的映射关系
+vim /etc/hosts
+
+192.168.80.101 itcast
+
+1.4 关闭防火墙
+
+------Centos6之前
+service iptables status
+service iptables stop
+
+chkconfig iptables --list
+chkconfig iptables off
+
+-------CentOS7
+systemctl status firewalld
+systemctl disable firewalld
+
+#关闭 selinux
+vi /etc/sysconfig/selinux
+SELINUX=disabled
+sestatus -v
+
+1.5 重启Linux
+reboot
+
+此时用客户端xmanager5可以连接。右键Color schemes，New White
+
+备份【firewalld】
+
+2 安装JDK
+
+2.1 安装vim，离线
+百度，vim download， Mirrors链接打开
+Vim can be found at:ftp://ftp.home.vim.org/pub/vim/，打开链接       
+依次展开 >unix>vim8.1.tar.bz2
+保存到【E:\develop\linux\vim\v8.1】
+上传到【/usr/local/ninja59k】
+
+[root@itcast ninja59k]# tar -jxvf vim-8.1.tar.bz2 	#解压
+tar (child): bzip2: Cannot exec: No such file or directory
+
+需要安装bzip2
+配置本地源
+mkdir -p /media/Centos7
+[root@itcast ninja59k]# mount -t auto /dev/cdrom /media/Centos7
+mount: /dev/sr0 is write-protected, mounting read-only
+mount -o remount,rm /media/Centos7
+cd /etc/yum.repos.d
+cp CentOS-Base.repo CentOS-Base.repo.bak
+vi CentOS-Base.repo
+baseurl=file:///media/Centos7
+yum clean all
+yum list
+
+vi /etc/fstab
+/dev/sr0 /media/Centos7 iso9660 ro,relatime 0 0 #可选，自动加载
+
+安装bzip2
+yum install bzip2
+y
+y
+
+cd /usr/local/ninja59k
+tar -jxvf vim-8.1.tar.bz2 	#解压后，vim81目录
+
+[root@itcast src]# cd /usr/local/ninja59k/vim81/src
+[root@itcast src]# ./configure 
+configure: creating cache auto/config.cache
+checking whether make sets $(MAKE)... yes
+checking for gcc... no
+checking for cc... no
+checking for cl.exe... no
+configure: error: in `/usr/local/ninja59k/vim81/src':
+configure: error: no acceptable C compiler found in $PATH
+See `config.log' for more details
+
+需要安装gcc
+yum install gcc
+--> Running transaction check
+---> Package cpp.x86_64 0:4.8.5-36.el7 will be installed
+---> Package glibc-devel.x86_64 0:2.17-260.el7 will be installed
+--> Processing Dependency: glibc-headers = 2.17-260.el7 for package: glibc-devel-2.17-260.el7.x86_64
+--> Processing Dependency: glibc-headers for package: glibc-devel-2.17-260.el7.x86_64
+---> Package libmpc.x86_64 0:1.0.1-3.el7 will be installed
+---> Package mpfr.x86_64 0:3.1.1-4.el7 will be installed
+--> Running transaction check
+---> Package glibc-headers.x86_64 0:2.17-260.el7 will be installed
+--> Processing Dependency: kernel-headers >= 2.2.1 for package: glibc-headers-2.17-260.el7.x86_64
+--> Processing Dependency: kernel-headers for package: glibc-headers-2.17-260.el7.x86_64
+--> Running transaction check
+---> Package kernel-headers.x86_64 0:3.10.0-957.el7 will be installed
+--> Finished Dependency Resolution
+
+Dependencies Resolved
+
+====================================================================================================================================
+ Package                            Arch                       Version                               Repository                Size
+====================================================================================================================================
+Installing:
+ gcc                                x86_64                     4.8.5-36.el7                          base                      16 M
+Installing for dependencies:
+ cpp                                x86_64                     4.8.5-36.el7                          base                     5.9 M
+ glibc-devel                        x86_64                     2.17-260.el7                          base                     1.1 M
+ glibc-headers                      x86_64                     2.17-260.el7                          base                     683 k
+ kernel-headers                     x86_64                     3.10.0-957.el7                        base                     8.0 M
+ libmpc                             x86_64                     1.0.1-3.el7                           base                      51 k
+ mpfr                               x86_64                     3.1.1-4.el7                           base                     203 k
+
+Transaction Summary
+====================================================================================================================================
+Install  1 Package (+6 Dependent packages)
+
+确认安装版本4.8.5。
+[root@itcast src]# gcc -v 
+Using built-in specs.
+COLLECT_GCC=gcc
+COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper
+Target: x86_64-redhat-linux
+Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux
+Thread model: posix
+gcc version 4.8.5 20150623 (Red Hat 4.8.5-36) (GCC) 
+
+备份【gcc485】
+
+[root@itcast src]# cd /usr/local/ninja59k/vim81/src
+[root@itcast src]# ./configure 
+
+[root@itcast src]# yum install ncurses-devel
+make
+#需要等待几分钟
+make install
+vim 成功。
+
+2.2 上传JDK
+上传【jdk-8u211-linux-x64.tar.gz】到【/usr/local/ninja59k/】
+mkdir -p /home/hadoop/app
+
+[root@itcast ninja59k]# tar -zxvf jdk-8u211-linux-x64.tar.gz -C /home/hadoop/app
+2.3 添加到环境变量
+vim /etc/profile
+
+export JAVA_HOME=/home/hadoop/app/jdk1.8.0_211
+export PATH=$PATH:$JAVA_HOME/bin
+
+source /etc/profile
+java -version #验证版本
+
+3 安装hadoop2.4.1
+上传【】
+
+
+可选：升级gcc-9.1.0
+[root@itcast ninja59k]# tar -zxvf gcc-9.1.0.tar.gz 
+[root@itcast ninja59k]# cd gcc-9.1.0
+
+[root@itcast gcc-9.1.0]# ./contrib/download_prerequisites 
+./contrib/download_prerequisites: line 58: type: wget: not found
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (6) Could not resolve host: .; Unknown error
+curl: (6) Could not resolve host: gcc.gnu.org; Unknown error
+error: Cannot download gmp-6.1.0.tar.bz2 from ftp://gcc.gnu.org/pub/gcc/infrastructure/
+
+打开ftp，下载gmp-6.1.0.tar.bz2
+
+参考文章：
+升级gcc8.1
+https://blog.csdn.net/andysdsdsdsddd/article/details/80749174
+
+----   原来的想法是离线安装gcc-9，但发现还是需要gcc。
+安装gcc，百度gcc，https://gcc.gnu.org/
+右边 Download -> Mirrors -> US, San Francisco: https://bigsearcher.com/mirrors/gcc/, thanks to info@bigsearcher.com
+依次展开 releases -> gcc-9.1.0 -> gcc-9.1.0.tar.gz
+保存到【E:\develop\linux\gcc\v9.1.0\gcc-9.1.0】
+
+附：
+http://mirrors.aliyun.com/centos/7/os/x86_64/Packages/
+
+
+
+

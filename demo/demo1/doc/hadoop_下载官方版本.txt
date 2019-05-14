@@ -1,0 +1,16 @@
+百度搜索hadoop，Apache Hadoop
+顶面标栏，Download
+Download the release hadoop-X.Y.Z-src.tar.gz from a mirror site.
+点击【mirror site】
+新页面，点击【http://mirrors.tuna.tsinghua.edu.cn/apache/hadoop/common】
+点击【hadoop-2.6.5】->【hadoop-2.6.5.tar.gz】
+
+上传网盘/hadoop/version
+链接：https://pan.baidu.com/s/1sRI9tTGCaRXxz4L97EUbng 
+提取码：thpe 
+
+屏nua
+蔽aitu 字母I 水族鳖头三点小
+
+
+
