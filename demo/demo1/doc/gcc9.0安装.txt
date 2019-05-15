@@ -1,6 +1,30 @@
 
 
 可选：升级gcc-9.1.0
+
+下载四个文件
+gmp-6.1.0.tar.bz2
+mpfr-3.1.4.tar.bz2
+mpc-1.0.3.tar.gz
+isl-0.18.tar.bz2
+
+解压移动到gcc
+
+ln -sf gmp-6.1.0 gmp
+ln -sf mpc-1.0.3 mpc
+ln -sf mpfr-3.1.4 mpfr
+ln -sf isl-0.18 isl
+
+[root@itcast gcc-9.1.0]#  contrib/download_prerequisites 
+All prerequisites downloaded successfully. 成功是这个样子。
+cd ..
+mkdir -p gcc-build-9.1.0
+../gcc-9.1.0/configure --enable-checking=release --enable-languages=c,c++ --disable-multilib
+
+2019-5-14 19:22:22 开始编译
+
+
+
 [root@itcast ninja59k]# tar -zxvf gcc-9.1.0.tar.gz 
 [root@itcast ninja59k]# cd gcc-9.1.0
 
@@ -18,10 +42,6 @@ yum install wget
 修改baseurl? 
 base_url=\usr\local\ninja59k
 
-gmp-6.1.0.tar.bz2
-mpfr-3.1.4.tar.bz2
-mpc-1.0.3.tar.gz
-isl-0.18.tar.bz2
 
 
 rpm -qa|grep gmp	//检查gmp版本
